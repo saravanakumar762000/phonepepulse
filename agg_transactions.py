@@ -166,240 +166,76 @@ for i in top_states:
 df6=pd.DataFrame(Z6)
 df6.to_csv("top_user_state.csv")
 
-agg_trans=pd.read_csv("Agg_trans.csv")
-agg_trans=agg_trans.drop(['Unnamed: 0'],axis=1)
+mydb = mysql.connect(host="localhost",
+                   user="root",
+                   password='12345',
+                   database= "phonepe_pulse_explore1"
+                  )
+mycursor = mydb.cursor(buffered=True)
 
-try:
-    conn = mysql.connect(host='localhost', user='root',password='12345')
-    if conn.is_connected():
-        cursor = conn.cursor()
-        cursor.execute("CREATE DATABASE phonepepulseexp")
-        print("Database is created")
-except Error as e:
-    print("Error while connecting to MySQL", e)
+mycursor.execute("CREATE DATABASE phonepe_pulse_explore1")
+mydb = mysql.connect(host="localhost",
+                   user="root",
+                   password='12345',
+                   database= "phonepe_pulse_explore1"
+                  )
+mycursor = mydb.cursor(buffered=True)
 
-cursor.execute("Use phonepepulseexp")
-cursor.execute('CREATE TABLE Aggregate_transactions1 (State VARCHAR(100), Year INT, Quater INT, Transaction_type VARCHAR(75),  Transaction_count INT,  Transaction_amount BIGINT )')
-print("Table is created")
+mycursor.execute("create table agg_transer (State varchar(100), Year int, Quarter int, Transaction_type varchar(100), Transaction_count int, Transaction_amount double)")
 
-for i,row in agg_trans.iterrows():
-            
-            sql = "INSERT INTO phonepepulseexp.Aggregate_transactions1 VALUES (%s,%s,%s,%s,%s,%s)"
-            cursor.execute(sql, tuple(row))
-            
-           
-            conn.commit()
-sql = "SELECT * FROM phonepepulseexp.Aggregate_transactions1"
-cursor.execute(sql)
-result = cursor.fetchall()
+for i,row in df.iterrows():
+    sql = "INSERT INTO agg_transer VALUES (%s,%s,%s,%s,%s,%s)"
+    mycursor.execute(sql, tuple(row))
+    mydb.commit()
+    
+mycursor.execute("create table agg_users (State varchar(100), Year int, Quarter int, Brands varchar(100), Count int, Percentage double)")
+
+for i,row in df2.iterrows():
+    sql = "INSERT INTO agg_users VALUES (%s,%s,%s,%s,%s,%s)"
+    mycursor.execute(sql, tuple(row))
+    mydb.commit()
+
+mycursor.execute("create table map_trans (State varchar(100), Year int, Quarter int, District varchar(100), Count int, Amount double)")
+
+for i,row in df3.iterrows():
+    sql = "INSERT INTO map_trans VALUES (%s,%s,%s,%s,%s,%s)"
+    mycursor.execute(sql, tuple(row))
+    mydb.commit()
+
+
+mycursor.execute("create table map_user (State varchar(100), Year int, Quarter int, District varchar(100), Registered_user int, App_opens int)")
+
+for i,row in df4.iterrows():
+    sql = "INSERT INTO map_user VALUES (%s,%s,%s,%s,%s,%s)"
+    mycursor.execute(sql, tuple(row))
+    mydb.commit()
+
+
+mycursor.execute("create table top_trans (State varchar(100), Year int, Quarter int,  Distircts varchar(100), Transaction_count int, Transaction_amount double)")
+
+for i,row in df5.iterrows():
+    sql = "INSERT INTO top_trans VALUES (%s,%s,%s,%s,%s,%s)"
+    mycursor.execute(sql, tuple(row))
+    mydb.commit()
+
+mycursor.execute("create table top_user (State varchar(100), Year int, Quarter int, Distircts varchar(100) , Registered_users int)")
+
+for i,row in df6.iterrows():
+    sql = "INSERT INTO top_user VALUES (%s,%s,%s,%s,%s)"
+    mycursor.execute(sql, tuple(row))
+    mydb.commit()
+    
+mycursor.execute("show tables")
+result=mycursor.fetchall()
 for i in result:
     print(i)
     
-agg_user= pd.read_csv("user_by_device.csv",index_col=False,delimiter = ',')
-
-agg_user=agg_user.drop(['Unnamed: 0'],axis=1)
-
-cursor.execute('USE phonepepulseexp')
-cursor.execute('CREATE TABLE Aggregate_Users (State VARCHAR(100), Year INT, Quater INT, User_Brand VARCHAR(75),  Brand_Count BIGINT,  Brand_Percentage BIGINT )')
-print("Table is created")
-for i,row in agg_user.iterrows():
-            
-            sql = "INSERT INTO  phonepepulseexp.Aggregate_Users VALUES (%s,%s,%s,%s,%s,%s)"
-            cursor.execute(sql, tuple(row))
-            
-            
-            conn.commit()
-sql = "SELECT * FROM  phonepepulseexp.Aggregate_Users"
-cursor.execute(sql)
-
-result = cursor.fetchall()
-for i in result:
-    print(i)
-
-map_trans= pd.read_csv('map_trans.csv',index_col=False,delimiter = ',')
-map_trans=map_trans.drop(['Unnamed: 0'],axis=1)
-cursor.execute('USE phonepepulseexp')
-cursor.execute('CREATE TABLE Map_transactions (State VARCHAR(100), Year INT, Quater INT, Hover_area VARCHAR(75),  Hover_count INT,  Hover_amount BIGINT )')
-print("Table is created")
-for i,row in map_trans.iterrows():
-            
-            sql = "INSERT INTO phonepepulseexp.Map_transactions VALUES (%s,%s,%s,%s,%s,%s)"
-            cursor.execute(sql, tuple(row))
-            
-            
-            conn.commit()
-sql = "SELECT * FROM phonepepulseexp.Map_transactions"
-cursor.execute(sql)
-
-result = cursor.fetchall()
-for i in result:
-    print(i)
-
-map_user= pd.read_csv('map_user_state.csv',index_col=False,delimiter = ',')
-
-map_user=map_user.drop(['Unnamed: 0'],axis=1)
-
-cursor.execute('USE phonepepulseexp')
-cursor.execute('CREATE TABLE Map_Users1 (State VARCHAR(100), Year INT, Quater INT, District VARCHAR(75),  Reg_users VARCHAR(75) )')
-print("Table is created")
-for i,row in map_user.iterrows():
-           
-            sql = "INSERT INTO phonepepulseexp.Map_Users1 VALUES (%s,%s,%s,%s,%s)"
-            cursor.execute(sql, tuple(row))
-            
-            
-            conn.commit()
-sql = "SELECT * FROM phonepepulseexp.Map_Users1"
-cursor.execute(sql)
-
-result = cursor.fetchall()
-for i in result:
-    print(i)
     
-top_trans= pd.read_csv('top_trans_state.csv',index_col=False,delimiter = ',')
 
-top_trans=top_trans.drop(['Unnamed: 0'],axis=1)
 
-cursor.execute('USE phonepepulseexp')
-cursor.execute('CREATE TABLE Top_transactions (State VARCHAR(100), Year INT, Quater INT, District VARCHAR(75), Count INT,Amount BIGINT )')
-print("Table is created")
-for i,row in top_trans.iterrows():
-             
-            sql = "INSERT INTO phonepepulseexp.Top_transactions VALUES (%s,%s,%s,%s,%s,%s)"
-            cursor.execute(sql, tuple(row))
-           
-            conn.commit()
-sql = "SELECT * FROM phonepepulseexp.Top_transactions"
-cursor.execute(sql)
 
-result = cursor.fetchall()
-for i in result:
-    print(i)
-top_user= pd.read_csv('top_user_state.csv',index_col=False,delimiter = ',')
-top_user=top_user.drop(['Unnamed: 0'],axis=1)
-cursor.execute('USE phonepepulseexp')
-cursor.execute('CREATE TABLE Top_Users (State VARCHAR(100), Year INT, Quater INT, District_name VARCHAR(75),  Reguser VARCHAR(15) )')
-print("Table is created")
-for i,row in top_user.iterrows():
-           
-            sql = "INSERT INTO phonepepulseexp.Top_Users VALUES (%s,%s,%s,%s,%s)"
-            cursor.execute(sql, tuple(row))
-            
-          
-            conn.commit()
-sql = "SELECT * FROM phonepepulseexp.Top_Users"
-cursor.execute(sql)
 
-result = cursor.fetchall()
-for i in result:
-    print(i)
 
-cursor.execute('USE phonepepulseexp')
-cursor.execute("SELECT State, Quater, SUM(Transaction_amount) as Total_Transaction_amount FROM Aggregate_transactions1 GROUP BY State, Quater")
-
-
-filtered_rows = cursor.fetchall()
-
-
-df = pd.DataFrame(filtered_rows, columns=["State", "Quater", "Transaction_amount"])
-
-conn.commit()
-
-
-state = st.selectbox("Select State", df["State"].unique())
-
-
-df = df[df["State"] == state]
-
-
-fig = px.bar(df, x="Quater", y="Transaction_amount", color="State")
-
-
-st.plotly_chart(fig)
-cursor.execute('USE phonepepulseexp')
-cursor.execute("SELECT State, Quater, SUM( User_Brand and Brand_Count) as Brand FROM Aggregate_Users GROUP BY State, Quater")
-
-# Fetch the filtered rows
-filtered_rows = cursor.fetchall()
-
-# Create a DataFrame from the filtered rows
-df1 = pd.DataFrame(filtered_rows, columns=["State", "Quater", "Brand"])
-
-conn.commit()
-
-# Create a dropdown menu using Streamlit
-state = st.selectbox("Select State", df["State"].unique())
-
-# Filter the DataFrame based on the selected state
-df = df[df["State"] == state]
-
-# Create a bar chart using Plotly Express
-fig = px.bar(df, x="Quater", y="Year", color="State")
-
-# Display the bar chart using Streamlit
-st.plotly_chart(fig)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-           
-                      
-                      
-                    
-                      
-                      
-                      
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-             
                                       
                    
    
