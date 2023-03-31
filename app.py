@@ -83,7 +83,7 @@ def Top_Charts():
             
             with col3:
               st.markdown("### :violet[Pincode]")
-              mycursor.execute(f"select Distircts, sum(Transaction_count) as Total_Transactions_Count, sum(Transaction_amount) as Total from top_trans where year = {Year} and quarter = {Quarter} group by Distircts order by Total desc limit 10")
+              mycursor.execute(f"select Pincode, sum(Transaction_count) as Total_Transactions_Count, sum(Transaction_amount) as Total from top_trans2 where year = {Year} and quarter = {Quarter} group by Pincode order by Total desc limit 10")
               df = pd.DataFrame(mycursor.fetchall(), columns=['Pincode', 'Transactions_Count','Total_Amount'])
               fig = px.pie(df, values='Total_Amount',
                              names='Pincode',
@@ -117,7 +117,7 @@ def Top_Charts():
     
             with col2:
                st.markdown("### :violet[District]")
-               mycursor.execute(f"select district, sum(Registered_User) as Total_Users, sum(app_opens) as Total_Appopens from map_user where year = {Year} and quarter = {Quarter} group by district order by Total_Users desc limit 10")
+               mycursor.execute(f"select district, sum(Registered_User) as Total_Users, sum(app_opens) as Total_Appopens from map_useres where year = {Year} and quarter = {Quarter} group by district order by Total_Users desc limit 10")
                df = pd.DataFrame(mycursor.fetchall(), columns=['District', 'Total_Users','Total_Appopens'])
                df.Total_Users = df.Total_Users.astype(float)
                fig = px.bar(df,
@@ -131,7 +131,7 @@ def Top_Charts():
               
             with col3:
                st.markdown("### :violet[Pincode]")
-               mycursor.execute(f"select Distircts, sum(Registered_Users) as Total_Users from top_user where year = {Year} and quarter = {Quarter} group by Distircts order by Total_Users desc limit 10")
+               mycursor.execute(f"select Districts, sum(Registered_Users) as Total_Users from top_user1 where year = {Year} and quarter = {Quarter} group by Districts order by Total_Users desc limit 10")
                df = pd.DataFrame(mycursor.fetchall(), columns=['Pincode', 'Total_Users'])
                fig = px.pie(df,
                          values='Total_Users',
@@ -144,7 +144,7 @@ def Top_Charts():
             
             with col4:
                st.markdown("### :violet[State]")
-               mycursor.execute(f"select state, sum(Registered_user) as Total_Users, sum(App_opens) as Total_Appopens from map_user where year = {Year} and quarter = {Quarter} group by state order by Total_Users desc limit 10")
+               mycursor.execute(f"select state, sum(Registered_user) as Total_Users, sum(App_opens) as Total_Appopens from map_useres where year = {Year} and quarter = {Quarter} group by state order by Total_Users desc limit 10")
                df = pd.DataFrame(mycursor.fetchall(), columns=['State', 'Total_Users','Total_Appopens'])
                fig = px.pie(df, values='Total_Users',
                              names='State',
@@ -178,7 +178,8 @@ def Explore_Data():
                       featureidkey='properties.ST_NM',
                       locations='State',
                       color='Total_amount',
-                      color_continuous_scale='sunset')
+                      color_continuous_scale='sunset',
+                      )
 
                 fig.update_geos(fitbounds="locations", visible=False)
                 st.plotly_chart(fig,use_container_width=True)
@@ -249,13 +250,13 @@ def Explore_Data():
         
         
             st.markdown("## :violet[Overall State Data - User App opening frequency]")
-            mycursor.execute(f"select state, sum(Registered_user) as Total_Users, sum(App_opens) as Total_Appopens from map_user where year = {Year} and quarter = {Quarter} group by state order by state")
-            df1 = pd.DataFrame(mycursor.fetchall(), columns=['State', 'Total_Users','Total_Appopens'])
-            df2 = pd.read_csv('Statenames.csv')
-            df1.Total_Appopens = df1.Total_Appopens.astype(float)
-            df1.State = df2
+            mycursor.execute(f"select State, sum(Registered_user) as Total_Users, sum(App_opens) as Total_Appopens from map_useres where year = {Year} and quarter = {Quarter} group by State order by State")
+            df3 = pd.DataFrame(mycursor.fetchall(), columns=['State', 'Total_Users','Total_Appopens'])
+            df4 = pd.read_csv('Statenames.csv')
+            df3.Total_Appopens = df3.Total_Appopens.astype(float)
+            df3.State = df4
         
-            fig = px.choropleth(df1,geojson="https://gist.githubusercontent.com/jbrobst/56c13bbbf9d97d187fea01ca62ea5112/raw/e388c4cae20aa53cb5090210a42ebb9b765c0a36/india_states.geojson",
+            fig = px.choropleth(df3,geojson="https://gist.githubusercontent.com/jbrobst/56c13bbbf9d97d187fea01ca62ea5112/raw/e388c4cae20aa53cb5090210a42ebb9b765c0a36/india_states.geojson",
                   featureidkey='properties.ST_NM',
                   locations='State',
                   color='Total_Appopens',
@@ -274,12 +275,12 @@ def Explore_Data():
                               'nagaland','odisha','puducherry','punjab','rajasthan','sikkim',
                               'tamil-nadu','telangana','tripura','uttar-pradesh','uttarakhand','west-bengal'),index=30)
         
-            mycursor.execute(f"select State,year,quarter,District,sum(Registered_user) as Total_Users, sum(App_opens) as Total_Appopens from map_user where year = {Year} and quarter = {Quarter} and state = '{selected_state}' group by State, District,year,quarter order by state,district")
+            mycursor.execute(f"select State,year,quarter,District,sum(Registered_user) as Total_Users, sum(App_opens) as Total_Appopens from map_useres where year = {Year} and quarter = {Quarter} and state = '{selected_state}' group by State, District,year,quarter order by state,district")
         
-            df = pd.DataFrame(mycursor.fetchall(), columns=['State','year', 'quarter', 'District', 'Total_Users','Total_Appopens'])
-            df.Total_Users = df.Total_Users.astype(int)
+            df5 = pd.DataFrame(mycursor.fetchall(), columns=['State','year', 'quarter', 'District', 'Total_Users','Total_Appopens'])
+            df5.Total_Users = df5.Total_Users.astype(int)
         
-            fig = px.bar(df,
+            fig = px.bar(df5,
                      title=selected_state,
                      x="District",
                      y="Total_Users",
