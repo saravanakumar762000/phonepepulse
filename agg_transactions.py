@@ -90,7 +90,7 @@ df3=pd.DataFrame(Z3)
 df3.to_csv("map_trans.csv")
 path="/phonepe/pulse/data/map/user/hover/country/india/state"
 hover_state=os.listdir(path)
-Z4={'State':[], 'Year':[],'Quarter':[],'Users':[], 'Districts':[]}
+Z4={'State':[], 'Year':[],'Quarter':[],'Users':[], 'Districts':[],'App_opens':[]}
 for i in hover_state:
     p=path+"/"+i
     hover_yr=os.listdir(p) 
@@ -103,8 +103,10 @@ for i in hover_state:
             A=json.load(Data)
             for district,values in A['data']['hoverData'].items():
                    users=values['registeredUsers']
+                   AppOpens=values['appOpens']
                    d=district
                    Z4["Users"].append(users)
+                   Z4['App_opens'].append(AppOpens)
                    Z4["Districts"].append(d)
                    Z4["State"].append(i)
                    Z4["Year"].append(row)
@@ -173,7 +175,7 @@ mydb = mysql.connect(host="localhost",
                   )
 mycursor = mydb.cursor(buffered=True)
 
-mycursor.execute("CREATE DATABASE phonepe_pulse_explore1")
+#mycursor.execute("CREATE DATABASE phonepe_pulse_explore1")
 mydb = mysql.connect(host="localhost",
                    user="root",
                    password='12345',
@@ -203,38 +205,35 @@ for i,row in df3.iterrows():
     mydb.commit()
 
 
-mycursor.execute("create table map_user (State varchar(100), Year int, Quarter int, District varchar(100), Registered_user int, App_opens int)")
+mycursor.execute("create table map_useres (State varchar(100), Year int, Quarter int, Registered_user int,District varchar(100), App_opens int)")
 
 for i,row in df4.iterrows():
-    sql = "INSERT INTO map_user VALUES (%s,%s,%s,%s,%s,%s)"
+    sql = "INSERT INTO map_useres VALUES (%s,%s,%s,%s,%s,%s)"
     mycursor.execute(sql, tuple(row))
     mydb.commit()
 
 
-mycursor.execute("create table top_trans (State varchar(100), Year int, Quarter int,  Distircts varchar(100), Transaction_count int, Transaction_amount double)")
+mycursor.execute("create table top_trans2 (State varchar(100), Year int, Quarter int,  Pincode varchar(100), Transaction_count int, Transaction_amount double)")
 
 for i,row in df5.iterrows():
-    sql = "INSERT INTO top_trans VALUES (%s,%s,%s,%s,%s,%s)"
+    sql = "INSERT INTO top_trans2 VALUES (%s,%s,%s,%s,%s,%s)"
     mycursor.execute(sql, tuple(row))
     mydb.commit()
 
-mycursor.execute("create table top_user (State varchar(100), Year int, Quarter int, Distircts varchar(100) , Registered_users int)")
+mycursor.execute("create table top_user1 (State varchar(100), Year int, Quarter int, Districts varchar(100) , Registered_users int)")
 
 for i,row in df6.iterrows():
     sql = "INSERT INTO top_user VALUES (%s,%s,%s,%s,%s)"
     mycursor.execute(sql, tuple(row))
     mydb.commit()
     
+
 mycursor.execute("show tables")
 result=mycursor.fetchall()
 for i in result:
     print(i)
     
     
-
-
-
-
 
                                       
                    
